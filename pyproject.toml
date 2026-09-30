@@ -1,6 +1,6 @@
 [project]
 name = "llmops-kit"
-version = "0.1.0"
+version = "0.1.2"
 description = "Shared tracing, eval and template tooling for LLM projects"
 authors = [
     { name = "Manish Puri", email = "9772350+mpuri1@users.noreply.github.com" }

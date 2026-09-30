@@ -27,3 +27,9 @@ llmops_kit_source:
     GitHub (mpuri1/llmops-backbone): git
     Local sibling folder ../llmops-backbone: path
   default: git
+
+llmops_kit_tag:
+  type: str
+  help: llmops-kit release tag to install (git source)
+  default: v0.1.2
+  when: "{{ llmops_kit_source == 'git' }}"

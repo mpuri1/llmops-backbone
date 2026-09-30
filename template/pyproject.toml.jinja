@@ -15,8 +15,11 @@ dev = ["pytest", "ruff"]
 {% if llmops_kit_source == "path" -%}
 llmops-kit = { path = "../llmops-backbone", editable = true }
 {%- else -%}
-llmops-kit = { git = "https://github.com/mpuri1/llmops-backbone", tag = "v0.1.0" }
+llmops-kit = { git = "https://github.com/mpuri1/llmops-backbone", tag = "{{ llmops_kit_tag }}" }
 {%- endif %}
+
+[tool.uv.build-backend]
+module-name = "{{ package_name }}"
 
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
