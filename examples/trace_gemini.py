@@ -15,10 +15,7 @@ from llmops_kit import llm_span, setup_tracing, traced
 
 load_dotenv()
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
-TEMPLATE = (
-    "An insurance dataset has a column named '{column}'. "
-    "In at most eight words, what does it most likely hold?"
-)
+TEMPLATE = "An insurance dataset has a column named '{column}'. In at most eight words, what does it most likely hold?"
 
 
 @traced(name="describe_column", kind="AGENT")
@@ -27,8 +24,9 @@ def describe_column(client: genai.Client, column: str) -> str:
         response = client.models.generate_content(model=MODEL, contents=TEMPLATE.format(column=column))
         usage = response.usage_metadata
         call.record_usage(input_tokens=usage.prompt_token_count, output_tokens=usage.candidates_token_count)
-        call.record_response(model=response.model_version,
-                             finish_reason=response.candidates[0].finish_reason.name.lower())
+        call.record_response(
+            model=response.model_version, finish_reason=response.candidates[0].finish_reason.name.lower()
+        )
     return response.text.strip()
 
 

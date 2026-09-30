@@ -50,8 +50,9 @@ def test_traced_records_and_reraises_errors(spans):
 
 def test_llm_span_uses_genai_conventions_and_hashes_the_prompt(spans):
     template = "Map column {column} to an ontology property."
-    with llm_span(model="gemini-2.5-flash", provider="gcp.gemini", prompt_template=template,
-                  prompt_name="map_column") as call:
+    with llm_span(
+        model="gemini-2.5-flash", provider="gcp.gemini", prompt_template=template, prompt_name="map_column"
+    ) as call:
         call.record_usage(input_tokens=120, output_tokens=30)
         call.record_response(model="gemini-2.5-flash-001", finish_reason="stop")
     span = by_name(spans)["chat gemini-2.5-flash"]
@@ -92,7 +93,7 @@ def test_second_setup_extends_instead_of_silently_replacing(spans):
 
     work()
     assert "after-second-setup" in by_name(second)  # the new exporter receives spans
-    assert "after-second-setup" in by_name(spans)   # and the original one still does
+    assert "after-second-setup" in by_name(spans)  # and the original one still does
 
 
 def test_tracing_off_skips_network_export_but_keeps_explicit_exporters(spans, monkeypatch):
