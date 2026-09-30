@@ -1,0 +1,21 @@
+"""Entry point. Loads .env and sets up tracing before doing any work."""
+
+from dotenv import load_dotenv
+from llmops_kit import setup_tracing, traced
+
+load_dotenv()
+
+
+@traced(kind="CHAIN")
+def run() -> str:
+    return "ok"
+
+
+def main() -> None:
+    provider = setup_tracing("{{ project_name }}")
+    print(run())
+    provider.force_flush()
+
+
+if __name__ == "__main__":
+    main()

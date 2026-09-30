@@ -1,0 +1,11 @@
+from llmops_kit import setup_tracing
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+from {{ package_name }}.main import run
+
+
+def test_run_is_traced():
+    exporter = InMemorySpanExporter()
+    setup_tracing("{{ project_name }}-test", exporter=exporter, batch=False)
+    assert run() == "ok"
+    assert any(s.name.endswith("run") for s in exporter.get_finished_spans())
