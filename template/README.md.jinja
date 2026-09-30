@@ -1,0 +1,14 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+cp .env.example .env
+uv sync
+uv run pytest
+```
+
+Traces go to a local [Phoenix](https://github.com/Arize-ai/phoenix) at http://localhost:6006
+(`uv run --with arize-phoenix phoenix serve`).

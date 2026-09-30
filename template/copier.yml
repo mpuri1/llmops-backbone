@@ -1,0 +1,29 @@
+_min_copier_version: "9.0.0"
+_templates_suffix: .jinja
+_answers_file: .copier-answers.yml
+
+project_name:
+  type: str
+  help: Repository name (kebab-case)
+  validator: "{% if not project_name | regex_search('^[a-z][a-z0-9-]+$') %}Use lowercase kebab-case{% endif %}"
+
+package_name:
+  type: str
+  help: Python package name
+  default: "{{ project_name | replace('-', '_') }}"
+
+description:
+  type: str
+  help: One-line description
+
+python_version:
+  type: str
+  default: "3.12"
+
+llmops_kit_source:
+  type: str
+  help: Where to install llmops-kit from
+  choices:
+    GitHub (mpuri1/llmops-backbone): git
+    Local sibling folder ../llmops-backbone: path
+  default: git

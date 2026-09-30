@@ -1,0 +1,29 @@
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+requires-python = ">={{ python_version }}"
+dependencies = [
+    "llmops-kit",
+    "python-dotenv",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[tool.uv.sources]
+{% if llmops_kit_source == "path" -%}
+llmops-kit = { path = "../llmops-backbone", editable = true }
+{%- else -%}
+llmops-kit = { git = "https://github.com/mpuri1/llmops-backbone", tag = "v0.1.0" }
+{%- endif %}
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
