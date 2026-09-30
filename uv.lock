@@ -130,9 +130,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "opentelemetry-exporter-otlp-proto-http", specifier = ">=1.45.0" },
-    { name = "opentelemetry-sdk", specifier = ">=1.45.0" },
-    { name = "python-dotenv", specifier = ">=1.2.3" },
+    { name = "opentelemetry-exporter-otlp-proto-http", specifier = ">=1.30" },
+    { name = "opentelemetry-sdk", specifier = ">=1.30" },
+    { name = "python-dotenv", specifier = ">=1.0" },
 ]
 
 [package.metadata.requires-dev]
