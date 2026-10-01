@@ -1,0 +1,30 @@
+# LiteLLM proxy: one OpenAI-compatible endpoint for every project.
+#   uv run --extra gateway litellm --config gateway/config.yaml --port 4000
+# Projects ask for an alias ("fast", "smart"), never a provider model name, so models can change here only.
+model_list:
+  - model_name: fast
+    litellm_params:
+      model: gemini/gemini-3.5-flash-lite
+      api_key: os.environ/GOOGLE_API_KEY
+  - model_name: smart
+    litellm_params:
+      model: gemini/gemini-3.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+  - model_name: fallback
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
+router_settings:
+  num_retries: 2            # retried on 429 / 5xx before falling back
+  timeout: 60
+  fallbacks:
+    - fast: [fallback]
+    - smart: [fallback]
+
+litellm_settings:
+  drop_params: true
+  callbacks: budget_hook.budgets   # per-project daily budgets + spend ledger
+
+general_settings:
+  master_key: os.environ/LLMOPS_GATEWAY_KEY

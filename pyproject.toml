@@ -12,6 +12,11 @@ dependencies = [
     "python-dotenv>=1.0",
 ]
 
+[project.optional-dependencies]
+gateway = [
+    "litellm[proxy]>=1.103.1",
+]
+
 [tool.ruff]
 line-length = 120
 

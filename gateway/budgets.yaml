@@ -1,0 +1,5 @@
+# Daily budget per project, in USD. Calls from a project without an entry use _default.
+_default: 1.00
+ontology-dimension-factory: 5.00
+flood-policy-graphrag: 5.00
+nlq-semantic-agent: 5.00

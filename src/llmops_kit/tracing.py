@@ -132,6 +132,10 @@ class LLMCall:
             self.span.set_attribute("gen_ai.usage.output_tokens", output_tokens)
             self.span.set_attribute("llm.token_count.completion", output_tokens)
 
+    def record_cost(self, usd: float | None) -> None:
+        if usd is not None:
+            self.span.set_attribute("llmops.cost.usd", usd)
+
     def record_response(self, model: str | None = None, finish_reason: str | None = None) -> None:
         if model:
             self.span.set_attribute("gen_ai.response.model", model)
