@@ -49,8 +49,6 @@ def test_generated_project_passes_its_own_lint_and_tests(tmp_path, extra):
         ".gitignore",
         ".env.example",
         ".github/workflows/ci.yml",
-        "decision/DECISION_LOG.md",
-        "decision/LEARNING_EXPERIENCE.md",
         ".copier-answers.yml",
     ]:
         assert (dest / relative).exists(), relative

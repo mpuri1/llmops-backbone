@@ -1,6 +1,6 @@
 # llmops-backbone
 
-Shared operating layer for LLM projects: tracing, a project template, and (in later milestones) a model gateway, eval gates, workers and Azure deployment.
+Shared tooling for LLM projects: OpenTelemetry tracing for model, tool and agent calls, and a project template that wires it in.
 
 ## What's here
 
