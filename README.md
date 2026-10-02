@@ -31,6 +31,7 @@ uv run --extra gateway litellm --config gateway/config.yaml --port 4000
 
 ```python
 from llmops_kit.gateway import chat
+
 reply = chat([{"role": "user", "content": "Hi"}], model="fast", project="my-project")
 print(reply.text, reply.model, reply.cost_usd)
 ```

@@ -51,8 +51,11 @@ class FakeGateway(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'{"error": "daily budget for broke spent"}')
             return
-        payload = {"model": "fast", "choices": [{"message": {"content": "hello"},
-                   "finish_reason": "stop"}], "usage": {"prompt_tokens": 7, "completion_tokens": 2}}
+        payload = {
+            "model": "fast",
+            "choices": [{"message": {"content": "hello"}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 7, "completion_tokens": 2},
+        }
         self.send_response(200)
         self.send_header("x-litellm-response-cost", "0.000012")
         self.send_header("x-litellm-model-name", "gemini/gemini-2.5-flash")  # answered by the fallback

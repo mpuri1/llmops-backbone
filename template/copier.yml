@@ -31,5 +31,5 @@ llmops_kit_source:
 llmops_kit_tag:
   type: str
   help: llmops-kit release tag to install (git source)
-  default: v0.1.2
+  default: v0.1.3
   when: "{{ llmops_kit_source == 'git' }}"
