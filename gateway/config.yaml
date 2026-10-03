@@ -8,7 +8,7 @@ model_list:
       api_key: os.environ/GOOGLE_API_KEY
   - model_name: smart
     litellm_params:
-      model: gemini/gemini-3.5-flash
+      model: gemini/gemini-3.8-flash
       api_key: os.environ/GOOGLE_API_KEY
   - model_name: fallback
     litellm_params:
