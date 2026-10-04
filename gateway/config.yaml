@@ -1,6 +1,8 @@
 # LiteLLM proxy: one OpenAI-compatible endpoint for every project.
 #   uv run --extra gateway litellm --config gateway/config.yaml --port 4000
 # Projects ask for an alias ("fast", "smart"), never a provider model name, so models can change here only.
+# A model missing from LiteLLM's price table needs model_info: {input_cost_per_token, output_cost_per_token},
+# or the budget hook refuses the project's calls after its first unpriced one.
 model_list:
   - model_name: fast
     litellm_params:

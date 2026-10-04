@@ -5,6 +5,10 @@ the project's spend for the current UTC day is compared with its budget in gatew
 budget the call is refused with HTTP 429. After each successful call, one line is appended to the ledger
 (LLMOPS_GATEWAY_LEDGER, default gateway/spend.jsonl): time, project, alias, model that answered, tokens, cost.
 The ledger is reloaded at start-up, so budgets survive a restart without a database.
+
+A call LiteLLM can't price (a model missing from its price table) is logged with cost_usd null, and the project's
+calls are refused for the rest of the day: a budget that silently counts $0 isn't a budget. Give the model a price
+in gateway/config.yaml (model_info: input_cost_per_token, output_cost_per_token).
 """
 
 from __future__ import annotations
@@ -33,10 +37,17 @@ class ProjectBudgets(CustomLogger):
         self.ledger_path = ledger_path or Path(os.environ.get("LLMOPS_GATEWAY_LEDGER", HERE / "spend.jsonl"))
         self.budgets = {str(k): float(v) for k, v in yaml.safe_load(self.budgets_path.read_text()).items()}
         self.spent: dict[tuple[str, str], float] = defaultdict(float)
+        self.unpriced: set[tuple[str, str]] = set()  # (project, day) with a call that had no cost
         if self.ledger_path.exists():
             for line in self.ledger_path.read_text().splitlines():
                 r = json.loads(line)
-                self.spent[(r["project"], r["time"][:10])] += r["cost_usd"]
+                self._add(r["project"], r["time"][:10], r["cost_usd"])
+
+    def _add(self, project: str, day: str, cost: float | None) -> None:
+        if cost is None:
+            self.unpriced.add((project, day))
+        else:
+            self.spent[(project, day)] += cost
 
     def budget(self, project: str) -> float:
         return self.budgets.get(project, self.budgets.get("_default", 0.0))
@@ -50,13 +61,19 @@ class ProjectBudgets(CustomLogger):
         """Raise when a call can't go ahead: no project, or the project's budget for today is spent."""
         if not project:
             raise HTTPException(status_code=400, detail="name the calling project in metadata.project or user")
+        if (project, _today()) in self.unpriced:
+            raise HTTPException(
+                status_code=429,
+                detail=f"a call for {project} today had no price, so its budget can't be enforced; "
+                "add model_info prices for that model in gateway/config.yaml",
+            )
         spent, budget = self.spent[(project, _today())], self.budget(project)
         if spent >= budget:
             raise HTTPException(
                 status_code=429, detail=f"daily budget for {project} spent: ${spent:.4f} of ${budget:.2f}"
             )
 
-    def record(self, project: str, alias: str, model: str, usage: dict, cost: float) -> dict:
+    def record(self, project: str, alias: str, model: str, usage: dict, cost: float | None) -> dict:
         row = {
             "time": datetime.now(UTC).isoformat(timespec="seconds"),
             "project": project,
@@ -64,9 +81,9 @@ class ProjectBudgets(CustomLogger):
             "model": model,
             "input_tokens": usage.get("prompt_tokens", 0),
             "output_tokens": usage.get("completion_tokens", 0),
-            "cost_usd": round(cost, 8),
+            "cost_usd": None if cost is None else round(cost, 8),
         }
-        self.spent[(project, row["time"][:10])] += cost
+        self._add(project, row["time"][:10], cost)
         self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
         with self.ledger_path.open("a") as f:
             f.write(json.dumps(row) + "\n")
@@ -84,7 +101,8 @@ class ProjectBudgets(CustomLogger):
         usage = getattr(response_obj, "usage", None)
         usage = usage.model_dump() if hasattr(usage, "model_dump") else (usage or {})
         alias = meta.get("model_group") or kwargs.get("model", "")
-        self.record(project, alias, kwargs.get("model", ""), usage, float(kwargs.get("response_cost") or 0.0))
+        cost = kwargs.get("response_cost")  # None when LiteLLM has no price for the model
+        self.record(project, alias, kwargs.get("model", ""), usage, None if cost is None else float(cost))
 
 
 budgets = ProjectBudgets()

@@ -1,4 +1,4 @@
-"""Shared LLMOps tooling: tracing, prompt hashing and (later) evals and the gateway client."""
+"""Shared LLMOps tooling: tracing and prompt hashing here, the gateway client in llmops_kit.gateway."""
 
 from llmops_kit.tracing import llm_span, prompt_hash, setup_tracing, traced
 

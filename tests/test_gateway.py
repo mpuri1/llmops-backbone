@@ -43,6 +43,23 @@ def test_budget_hook_refuses_unnamed_and_over_budget_projects_and_survives_resta
     assert json.loads(ledger.read_text().splitlines()[0])["model"] == "gemini/gemini-3.5-flash-lite"
 
 
+def test_budget_hook_refuses_a_project_after_a_call_it_could_not_price(tmp_path):
+    hook = load_hook()
+    budgets = tmp_path / "budgets.yaml"
+    budgets.write_text("_default: 5.0\n")
+    ledger = tmp_path / "spend.jsonl"
+    b = hook.ProjectBudgets(budgets, ledger)
+
+    b.record("p3", "smart", "bedrock/new-model", {"prompt_tokens": 10, "completion_tokens": 5}, None)
+    assert json.loads(ledger.read_text())["cost_usd"] is None  # not logged as $0
+    with pytest.raises(hook.HTTPException) as e:
+        b.check("p3")
+    assert e.value.status_code == 429 and "model_info" in e.value.detail
+    with pytest.raises(hook.HTTPException):
+        hook.ProjectBudgets(budgets, ledger).check("p3")  # still refused after a restart
+    b.check("other")
+
+
 class FakeGateway(BaseHTTPRequestHandler):
     def do_POST(self):  # noqa: N802
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))

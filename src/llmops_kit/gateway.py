@@ -1,12 +1,12 @@
 """Client for the LiteLLM gateway (gateway/config.yaml): one OpenAI-compatible endpoint for all projects.
 
     from llmops_kit.gateway import chat
-    reply = chat([{"role": "user", "content": "Hi"}], model="fast", project="flood-policy-graphrag")
+    reply = chat([{"role": "user", "content": "Hi"}], model="fast", project="my-project")
 
-Projects ask for an alias ("fast", "smart"), not a provider model. Every call names its project, which the
-gateway uses for budgets and the spend ledger. The call is traced with llm_span: tokens, the model that
-answered (after any fallback) and the cost the gateway reports. Standard library only, so projects don't
-need a provider SDK to use it.
+Projects ask for an alias ("fast", "smart"; both fall back to "fallback"), not a provider model. Every call
+names its project, which the gateway uses for budgets and the spend ledger. The call is traced with llm_span:
+tokens, the model that answered (after any fallback) and the cost the gateway reports. Standard library only,
+so projects don't need a provider SDK to use it.
 """
 
 from __future__ import annotations
