@@ -8,6 +8,7 @@ Shared tooling for LLM projects: a model gateway, OpenTelemetry tracing for mode
 |---|---|
 | `src/llmops_kit/` | `setup_tracing`, `@traced`, `llm_span`, `prompt_hash`: OpenTelemetry tracing with GenAI semantic conventions, exported over OTLP to Arize Phoenix or any collector |
 | `gateway/` | [LiteLLM](https://docs.litellm.ai/) proxy config: one OpenAI-compatible endpoint with model aliases (`fast`, `smart`, and `fallback`, which both fall back to), retries; a hook that enforces per-project daily budgets and writes a spend ledger |
+| `src/llmops_kit/bedrock_proxy.py` | Optional local proxy that SigV4-signs requests to Bedrock's OpenAI-compatible endpoint so the gateway can serve the `bedrock-glm` alias (`uv run --extra bedrock python -m llmops_kit.bedrock_proxy`, with `BEDROCK_PROFILE`; the gateway then needs `BEDROCK_PROXY_URL=http://127.0.0.1:4010/v1`) |
 | `src/llmops_kit/gateway.py` | Client for the gateway: tags each call with its project and traces tokens, cost, retries, fallbacks and the model that answered |
 | `template/` | [copier](https://copier.readthedocs.io/) template for new projects: uv, ruff, pytest, `.env` handling, tracing wired in, CI workflow |
 | `examples/trace_smoke.py` | Sends an agent span with nested tool and model-call spans to local Phoenix |

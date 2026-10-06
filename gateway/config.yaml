@@ -17,6 +17,18 @@ model_list:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GOOGLE_API_KEY
 
+  # Bedrock via bedrock-mantle (OpenAI-compatible, SigV4). LiteLLM can't sign, so it talks to the local signing proxy:
+  #   BEDROCK_PROFILE=<your-aws-profile> uv run --extra bedrock python -m llmops_kit.bedrock_proxy
+  # The Bedrock model id and prices (per token; $1.00 / $3.20 per 1M, AWS Bedrock pricing checked 2026-10-05) live here only.
+  - model_name: bedrock-glm
+    litellm_params:
+      model: openai/zai.glm-5
+      api_base: os.environ/BEDROCK_PROXY_URL   # e.g. http://127.0.0.1:4010/v1
+      api_key: "unused-the-proxy-signs"
+    model_info:
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.0000032
+
 router_settings:
   num_retries: 2            # retried on 429 / 5xx before falling back
   timeout: 60

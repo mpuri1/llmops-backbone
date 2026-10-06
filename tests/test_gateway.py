@@ -106,3 +106,67 @@ def test_client_requires_a_project_and_surfaces_budget_refusals(gateway_url, mon
     with pytest.raises(GatewayError) as e:
         chat([{"role": "user", "content": "hi"}], project="broke", base_url=gateway_url)
     assert e.value.status == 429
+
+
+def test_bedrock_proxy_url_and_signing():
+    pytest.importorskip("botocore")
+    from botocore.credentials import Credentials
+
+    from llmops_kit.bedrock_proxy import sign_headers, upstream_url
+
+    assert upstream_url("us-east-2", "/v1/chat/completions") == (
+        "https://bedrock-mantle.us-east-2.api.aws/v1/chat/completions"
+    )
+    assert upstream_url("us-east-2", "/chat/completions").endswith("/v1/chat/completions")
+    url = upstream_url("us-east-2", "/v1/chat/completions")
+    headers = sign_headers(Credentials("AKIDEXAMPLE", "secret", "token"), "us-east-2", "POST", url, b"{}")
+    assert headers["Authorization"].startswith("AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/")
+    assert "/us-east-2/bedrock/aws4_request" in headers["Authorization"]
+    assert headers["X-Amz-Security-Token"] == "token"
+
+
+def test_bedrock_proxy_forwards_signed_requests(monkeypatch):
+    pytest.importorskip("botocore")
+    from botocore.credentials import Credentials
+
+    from llmops_kit import bedrock_proxy
+
+    seen = {}
+
+    class FakeResponse:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b'{"ok": true}'
+
+    import urllib.request
+
+    real_urlopen = urllib.request.urlopen
+
+    def fake_urlopen(request, timeout=None):
+        if "bedrock-mantle" not in request.full_url:
+            return real_urlopen(request, timeout=timeout)
+        seen["url"], seen["body"], seen["auth"] = request.full_url, request.data, request.get_header("Authorization")
+        return FakeResponse()
+
+    monkeypatch.setattr(bedrock_proxy.urllib.request, "urlopen", fake_urlopen)
+    handler = bedrock_proxy.make_handler(lambda: Credentials("AKIDEXAMPLE", "secret"), "us-east-2")
+    server = HTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.handle_request, daemon=True).start()
+    body = json.dumps({"model": "x"}).encode()
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{server.server_port}/v1/chat/completions", data=body, method="POST"
+    )
+    try:
+        with real_urlopen(request, timeout=10) as response:
+            assert json.loads(response.read()) == {"ok": True}
+    finally:
+        server.server_close()
+    assert seen["url"] == "https://bedrock-mantle.us-east-2.api.aws/v1/chat/completions"
+    assert seen["body"] == body and seen["auth"].startswith("AWS4-HMAC-SHA256")
