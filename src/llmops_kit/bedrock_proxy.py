@@ -5,7 +5,7 @@ LiteLLM's OpenAI provider can only send a bearer key, but bedrock-mantle wants a
 sits between the two: LiteLLM posts to http://127.0.0.1:<port>/v1/..., the proxy signs the same request with the
 AWS profile and forwards it, and the response comes back unchanged.
 
-    BEDROCK_PROFILE=aws-mgmt BEDROCK_REGION=us-east-2 uv run --extra bedrock python -m llmops_kit.bedrock_proxy
+    BEDROCK_PROFILE=<your-aws-profile> BEDROCK_REGION=us-east-2 uv run --extra bedrock python -m llmops_kit.bedrock_proxy
 
 Settings (environment): BEDROCK_PROFILE (default "default"), BEDROCK_REGION (default "us-east-2"),
 BEDROCK_PROXY_PORT (default 4010), BEDROCK_PROXY_HOST (default 127.0.0.1; keep it local, the proxy has no
