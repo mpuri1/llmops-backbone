@@ -29,6 +29,24 @@ model_list:
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.0000032
 
+  # Azure OpenAI: a model deployment in an Azure AI Foundry resource. The endpoint, key, API version and the
+  # deployment (as azure/<deployment-name>) all come from the environment; none of them is written here.
+  #   AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_API_VERSION, AZURE_GATEWAY_MODEL
+  # base_model tells LiteLLM which model the deployment serves (a custom deployment name hides it), so reasoning-model
+  # parameters (no temperature, max_completion_tokens) are handled. Prices per token, Azure Retail Prices API,
+  # checked 2026-10-09: $0.25 in / $2.00 out per 1M, cached input $0.025.
+  - model_name: azure-gpt
+    litellm_params:
+      model: os.environ/AZURE_GATEWAY_MODEL
+      api_base: os.environ/AZURE_OPENAI_ENDPOINT
+      api_key: os.environ/AZURE_OPENAI_API_KEY
+      api_version: os.environ/AZURE_OPENAI_API_VERSION
+    model_info:
+      base_model: azure/gpt-5-mini
+      input_cost_per_token: 0.00000025
+      output_cost_per_token: 0.000002
+      cache_read_input_token_cost: 0.000000025
+
 router_settings:
   num_retries: 2            # retried on 429 / 5xx before falling back
   timeout: 60
