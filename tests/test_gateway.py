@@ -170,3 +170,15 @@ def test_bedrock_proxy_forwards_signed_requests(monkeypatch):
         server.server_close()
     assert seen["url"] == "https://bedrock-mantle.us-east-2.api.aws/v1/chat/completions"
     assert seen["body"] == body and seen["auth"].startswith("AWS4-HMAC-SHA256")
+
+
+def test_azure_alias_takes_everything_from_the_environment():
+    yaml = pytest.importorskip("yaml")
+    config = yaml.safe_load((ROOT / "gateway" / "config.yaml").read_text())
+    entry = next(m for m in config["model_list"] if m["model_name"] == "azure-gpt")
+    params = entry["litellm_params"]
+    for key in ("model", "api_base", "api_key", "api_version"):
+        assert params[key].startswith("os.environ/"), key
+    assert entry["model_info"]["input_cost_per_token"] > 0 and entry["model_info"]["output_cost_per_token"] > 0
+    text = (ROOT / "gateway" / "config.yaml").read_text()
+    assert "azure.com" not in text and "windows.net" not in text
