@@ -1,0 +1,10 @@
+{"id": "t01", "output": "Sure! Here is a summary: the customer got a broken item."}
+{"id": "t02", "output": "{\"category\":\"login\",\"summary\":\"Customer cannot log in after a password reset.\"}"}
+{"id": "t03", "output": "{\"category\":\"billing\",\"summary\":\"Invoice shows a wrong VAT rate.\"}"}
+{"id": "t04", "output": "{\"category\":\"shipping\",\"summary\":\"Parcel tracking has not updated for five days.\"}"}
+{"id": "t05", "output": "{\"category\":\"account\",\"summary\":\"Customer asks to cancel the subscription today.\"}"}
+{"id": "t06", "output": "{\"category\":\"shipping\",\"summary\":\"Customer wants to change the delivery address.\"}"}
+{"id": "t07", "output": "{\"category\":\"billing\",\"summary\":\"Chargeback threat, card ending 4242.\"}"}
+{"id": "t08", "output": "{\"category\":\"privacy\",\"summary\":\"Customer asks to delete the account and data.\"}"}
+{"id": "t09", "output": "{\"category\":\"contact\",\"summary\":\"Customer shared phone 555-0142 and wants a callback.\"}"}
+{"id": "t10", "output": "{\"category\":\"bug\",\"summary\":\"The application stops working The application stops working The application stops working The application stops working The application stops working The application stops working The application stops working The application stops working The application stops working The application stops working \"}"}

@@ -1,0 +1,64 @@
+name: eval-gate
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - name: Run the offline eval gate
+        id: gate
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # Cases and baseline come from the base branch, so a PR cannot loosen its own gate.
+          # If the base branch has no evals yet (the PR that adds them), fall back to this PR.
+          mkdir -p "$RUNNER_TEMP/gate"
+          for f in cases baseline; do
+            if git cat-file -e "origin/$BASE_REF:evals/$f.jsonl" 2>/dev/null; then
+              git show "origin/$BASE_REF:evals/$f.jsonl" > "$RUNNER_TEMP/gate/$f.jsonl"
+            else
+              cp "evals/$f.jsonl" "$RUNNER_TEMP/gate/$f.jsonl"
+            fi
+          done
+          set +e
+          uv run python -m llmops_kit.evalgate \
+            --cases "$RUNNER_TEMP/gate/cases.jsonl" \
+            --baseline "$RUNNER_TEMP/gate/baseline.jsonl" \
+            --candidate evals/candidate.jsonl \
+            --markdown "$RUNNER_TEMP/gate/comment.md"
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+      - name: Post or update the PR comment
+        # Fork PRs get a read-only token; the job summary below still shows the result.
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          COMMENT_FILE: ${{ runner.temp }}/gate/comment.md
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync(process.env.COMMENT_FILE)) return;
+            const body = fs.readFileSync(process.env.COMMENT_FILE, 'utf8');
+            const marker = '<!-- llmops-eval-gate -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find(c => c.body && c.body.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+      - name: Job summary
+        if: always()
+        run: '[ -f "$RUNNER_TEMP/gate/comment.md" ] && cat "$RUNNER_TEMP/gate/comment.md" >> "$GITHUB_STEP_SUMMARY" || true'
+      - name: Fail if the gate failed
+        if: steps.gate.outputs.status != '0'
+        run: exit 1
