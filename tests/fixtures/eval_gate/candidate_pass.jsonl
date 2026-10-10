@@ -1,0 +1,10 @@
+{"id": "t01", "output": "{\"category\":\"refund\",\"summary\":\"Customer wants a refund for a broken item in order 1182.\"}"}
+{"id": "t02", "output": "{\"category\":\"login\",\"summary\":\"Customer cannot log in after a password reset.\"}"}
+{"id": "t03", "output": "{\"category\":\"billing\",\"summary\":\"Invoice shows a wrong VAT rate.\"}"}
+{"id": "t04", "output": "{\"category\":\"shipping\",\"summary\":\"Parcel tracking has not updated for five days.\"}"}
+{"id": "t05", "output": "{\"category\":\"account\",\"summary\":\"Customer asks to cancel the subscription today.\"}"}
+{"id": "t06", "output": "{\"category\":\"shipping\",\"summary\":\"Customer wants to update the delivery address for order 2210.\"}"}
+{"id": "t07", "output": "{\"category\":\"billing\",\"summary\":\"Customer threatens a chargeback.\"}"}
+{"id": "t08", "output": "{\"category\":\"privacy\",\"summary\":\"Customer asks to delete the account and data.\"}"}
+{"id": "t09", "output": "{\"category\":\"contact\",\"summary\":\"Customer asks for a callback.\"}"}
+{"id": "t10", "output": "{\"category\":\"bug\",\"summary\":\"App crash on startup since update 3.4.\"}"}

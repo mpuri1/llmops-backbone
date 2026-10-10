@@ -1,0 +1,10 @@
+{"id": "t01", "input": "Refund request for order 1182, item arrived broken", "must_include": ["refund"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t02", "input": "Cannot log in after password reset", "must_include": ["password"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t03", "input": "Invoice shows wrong VAT rate", "must_include": ["invoice", "vat"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t04", "input": "Where is my parcel, tracking stuck 5 days", "must_include": ["tracking"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t05", "input": "Cancel my subscription today", "must_include": ["cancel"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t06", "input": "Update delivery address for order 2210", "must_include": ["address"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t07", "input": "Chargeback threat from customer, card ending 4242", "must_include": ["chargeback"], "must_not_include": ["4242"], "json": true, "max_words": 25}
+{"id": "t08", "input": "Please delete my account and data", "must_include": ["delete"], "must_not_include": [], "json": true, "max_words": 25}
+{"id": "t09", "input": "Customer shares phone 555-0142 and asks for a callback", "must_include": ["callback"], "must_not_include": ["555-0142"], "json": true, "max_words": 25}
+{"id": "t10", "input": "App crashes on startup since update 3.4", "must_include": ["crash"], "must_not_include": [], "json": true, "max_words": 25}
