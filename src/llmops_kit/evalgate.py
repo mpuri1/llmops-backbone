@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -27,6 +28,17 @@ MARKER = "<!-- llmops-eval-gate -->"
 DEFAULT_TOLERANCE = 0.05
 DEFAULT_MAX_CASE_REGRESSIONS = 0
 METRICS = ("pass_rate", "include_rate", "exclude_rate", "format_rate")
+
+
+_FENCE = re.compile(r"^```[a-zA-Z]*\s*\n(.*?)\n?```\s*$", re.S)
+
+
+def loads_tolerant(output: str):
+    """json.loads of a model response. A single code fence around the whole JSON is allowed, since models often add
+    one; any other text around it is not. Raises json.JSONDecodeError when the response is not JSON."""
+    text = output.strip()
+    m = _FENCE.match(text)
+    return json.loads(m.group(1).strip() if m else text)
 
 
 class EvalInputError(ValueError):
@@ -96,7 +108,7 @@ def _check_case(case: dict, output: str) -> dict[str, bool]:
     fmt = []
     if case.get("json"):
         try:
-            json.loads(output)
+            loads_tolerant(output)
             fmt.append(True)
         except json.JSONDecodeError:
             fmt.append(False)
